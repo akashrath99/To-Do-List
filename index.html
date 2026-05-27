@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Amazing To-Do App</title>
+  <style>
+    :root {
+      --bg: #f4f4f9;
+      --text: #333;
+      --card: #fff;
+      --primary: #0077ff;
+    }
+
+    body.dark {
+      --bg: #1e1e2f;
+      --text: #f4f4f9;
+      --card: #2e2e42;
+      --primary: #ffd700;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Segoe UI", sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 50px 20px;
+      transition: 0.3s;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 500px;
+      background: var(--card);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+      transition: 0.3s;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .theme-toggle {
+      text-align: right;
+      margin-bottom: 15px;
+    }
+
+    .theme-toggle button {
+      padding: 8px 15px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background: var(--primary);
+      color: #fff;
+      font-weight: bold;
+    }
+
+    .task-input {
+      display: flex;
+      margin-bottom: 20px;
+    }
+
+    .task-input input {
+      flex: 1;
+      padding: 10px;
+      border: 2px solid var(--primary);
+      border-radius: 8px 0 0 8px;
+      outline: none;
+    }
+
+    .task-input button {
+      padding: 10px 20px;
+      border: none;
+      background: var(--primary);
+      color: #fff;
+      border-radius: 0 8px 8px 0;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    ul {
+      list-style: none;
+    }
+
+    li {
+      background: var(--card);
+      padding: 12px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      transition: 0.3s;
+    }
+
+    li.completed {
+      text-decoration: line-through;
+      opacity: 0.7;
+    }
+
+    .actions button {
+      margin-left: 10px;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .complete-btn {
+      background: green;
+      color: #fff;
+    }
+
+    .delete-btn {
+      background: red;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="theme-toggle">
+      <button id="toggleTheme">🌙 Dark Mode</button>
+    </div>
+    <h1>My To-Do List</h1>
+    <div class="task-input">
+      <input type="text" id="taskInput" placeholder="Enter a task...">
+      <button id="addTask">Add</button>
+    </div>
+    <ul id="taskList"></ul>
+  </div>
+
+  <script>
+    const taskInput = document.getElementById("taskInput");
+    const addTaskBtn = document.getElementById("addTask");
+    const taskList = document.getElementById("taskList");
+    const toggleThemeBtn = document.getElementById("toggleTheme");
+
+    // Load tasks from localStorage
+    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+    function renderTasks() {
+      taskList.innerHTML = "";
+      tasks.forEach((task, index) => {
+        const li = document.createElement("li");
+        li.textContent = task.text;
+
+        if (task.completed) li.classList.add("completed");
+
+        const actions = document.createElement("div");
+        actions.classList.add("actions");
+
+        const completeBtn = document.createElement("button");
+        completeBtn.textContent = "✓";
+        completeBtn.classList.add("complete-btn");
+        completeBtn.onclick = () => toggleComplete(index);
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "✗";
+        deleteBtn.classList.add("delete-btn");
+        deleteBtn.onclick = () => deleteTask(index);
+
+        actions.appendChild(completeBtn);
+        actions.appendChild(deleteBtn);
+        li.appendChild(actions);
+
+        taskList.appendChild(li);
+      });
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
+
+    function addTask() {
+      const text = taskInput.value.trim();
+      if (text !== "") {
+        tasks.push({ text, completed: false });
+        taskInput.value = "";
+        renderTasks();
+      }
+    }
+
+    function toggleComplete(index) {
+      tasks[index].completed = !tasks[index].completed;
+      renderTasks();
+    }
+
+    function deleteTask(index) {
+      tasks.splice(index, 1);
+      renderTasks();
+    }
+
+    addTaskBtn.addEventListener("click", addTask);
+    taskInput.addEventListener("keypress", e => {
+      if (e.key === "Enter") addTask();
+    });
+
+    // Theme toggle
+    toggleThemeBtn.addEventListener("click", () => {
+      document.body.classList.toggle("dark");
+      toggleThemeBtn.textContent = 
+        document.body.classList.contains("dark") ? "☀️ Light Mode" : "🌙 Dark Mode";
+    });
+
+    renderTasks();
+  </script>
+</body>
+</html>
